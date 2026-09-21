@@ -5,6 +5,10 @@ namespace UnitConverter.Pages;
 
 public class ConversionsModel : PageModel
 {
+
+    [BindProperty(SupportsGet = true)]
+    public ConversionModel Conversion { get; set; } = new();
+
     [BindProperty(SupportsGet = true)]
     public string ConversionType { get; set; } = string.Empty;
 
@@ -15,29 +19,41 @@ public class ConversionsModel : PageModel
 
     public void OnGet()
     {
-        // Keep Lesson 1 behavior working when /Conversions is used.
-        if (string.IsNullOrEmpty(ConversionType))
+
+        if (!string.IsNullOrEmpty(ConversionType))
         {
-            ConversionType = "MilesToKilometers";
+            Conversion.ConversionType = ConversionType;
         }
 
-        if (string.IsNullOrEmpty(Input))
+        if (!string.IsNullOrEmpty(Input))
         {
-            Input = "3.1415";
+            Conversion.Input = Input;
         }
 
-        ViewData["ConversionType"] = ConversionType switch
+        if (string.IsNullOrEmpty(Conversion.ConversionType))
         {
-            "MilesToKilometers" => "Miles to Kilometers",
-            "KilometersToMiles" => "Kilometers to Miles",
-            "FahrenheitToCelsius" => "Fahrenheit to Celsius",
-            "CelsiusToFahrenheit" => "Celsius to Fahrenheit",
-            "PoundsToKilograms" => "Pounds to Kilograms",
-            "KilogramsToPounds" => "Kilograms to Pounds",
-            "InchesToCentimeters" => "Inches to Centimeters",
-            "CentimetersToInches" => "Centimeters to Inches",
-            _ => ConversionType
-        };
+            Conversion.ConversionType = ConversionTypes.MilesToKilometers;
+        }
+
+        if (string.IsNullOrEmpty(Conversion.Input))
+        {
+            Conversion.Input = "3.1415";
+        }
+
+        ConversionType = Conversion.ConversionType;
+        Input = Conversion.Input;
+
+        if (ConversionTypes.All.TryGetValue(
+                Conversion.ConversionType,
+                out string? displayName))
+        {
+            ViewData["ConversionType"] = displayName;
+        }
+        else
+        {
+            ViewData["ErrorMessage"] = "Unknown conversion type.";
+            return;
+        }
 
         ViewData["Title"] = "Conversions";
 
@@ -45,7 +61,7 @@ public class ConversionsModel : PageModel
 
         try
         {
-            inputValue = Convert.ToDouble(Input);
+            inputValue = Convert.ToDouble(Conversion.Input);
         }
         catch (FormatException)
         {
@@ -62,31 +78,47 @@ public class ConversionsModel : PageModel
 
         try
         {
-            convertedValue = ConversionType switch
+            convertedValue = Conversion.ConversionType switch
             {
-                "MilesToKilometers" =>
-                    new UnitOf.Length().FromMiles(inputValue).ToKilometers(),
+                ConversionTypes.MilesToKilometers =>
+                    new UnitOf.Length()
+                        .FromMiles(inputValue)
+                        .ToKilometers(),
 
-                "KilometersToMiles" =>
-                    new UnitOf.Length().FromKilometers(inputValue).ToMiles(),
+                ConversionTypes.KilometersToMiles =>
+                    new UnitOf.Length()
+                        .FromKilometers(inputValue)
+                        .ToMiles(),
 
-                "FahrenheitToCelsius" =>
-                    new UnitOf.Temperature().FromFahrenheit(inputValue).ToCelsius(),
+                ConversionTypes.FahrenheitToCelsius =>
+                    new UnitOf.Temperature()
+                        .FromFahrenheit(inputValue)
+                        .ToCelsius(),
 
-                "CelsiusToFahrenheit" =>
-                    new UnitOf.Temperature().FromCelsius(inputValue).ToFahrenheit(),
+                ConversionTypes.CelsiusToFahrenheit =>
+                    new UnitOf.Temperature()
+                        .FromCelsius(inputValue)
+                        .ToFahrenheit(),
 
-                "PoundsToKilograms" =>
-                    new UnitOf.Mass().FromPounds(inputValue).ToKilograms(),
+                ConversionTypes.PoundsToKilograms =>
+                    new UnitOf.Mass()
+                        .FromPounds(inputValue)
+                        .ToKilograms(),
 
-                "KilogramsToPounds" =>
-                    new UnitOf.Mass().FromKilograms(inputValue).ToPounds(),
+                ConversionTypes.KilogramsToPounds =>
+                    new UnitOf.Mass()
+                        .FromKilograms(inputValue)
+                        .ToPounds(),
 
-                "InchesToCentimeters" =>
-                    new UnitOf.Length().FromInches(inputValue).ToCentimeters(),
+                ConversionTypes.InchesToCentimeters =>
+                    new UnitOf.Length()
+                        .FromInches(inputValue)
+                        .ToCentimeters(),
 
-                "CentimetersToInches" =>
-                    new UnitOf.Length().FromCentimeters(inputValue).ToInches(),
+                ConversionTypes.CentimetersToInches =>
+                    new UnitOf.Length()
+                        .FromCentimeters(inputValue)
+                        .ToInches(),
 
                 _ => double.NaN
             };
@@ -103,6 +135,8 @@ public class ConversionsModel : PageModel
             return;
         }
 
-        Output = convertedValue.ToString();
+        Conversion.Output = convertedValue.ToString();
+
+        Output = Conversion.Output;
     }
 }
