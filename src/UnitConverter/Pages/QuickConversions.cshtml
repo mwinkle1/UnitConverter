@@ -8,6 +8,20 @@
 
 <h1>Quick Conversions</h1>
 
+@if (!string.IsNullOrEmpty(Model.Output))
+{
+    <div class="alert alert-success" role="status">
+        Result: @Model.Output
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div class="alert alert-danger" role="alert">
+        @Model.ErrorMessage
+    </div>
+}
+
 <p>
     <a asp-page="/Index">Back to Home</a>
 </p>
@@ -16,7 +30,10 @@
 
 <form method="get" asp-page-handler="@ConversionTypes.MilesToKilometers">
     <label for="miles" class="form-label">Miles</label>
-    <input id="miles" name="input" type="text" class="form-control" />
+    <input id="miles"
+           name="input"
+           type="text"
+           class="form-control" />
     <button type="submit" class="btn btn-primary">Convert</button>
 </form>
 
@@ -25,7 +42,10 @@
 
 <form method="get" asp-page-handler="@ConversionTypes.KilometersToMiles">
     <label for="kilometers" class="form-label">Kilometers</label>
-    <input id="kilometers" name="input" type="number" class="form-control" />
+    <input id="kilometers"
+           name="input"
+           type="number"
+           class="form-control" />
     <button type="submit" class="btn btn-primary">Convert</button>
 </form>
 
@@ -34,7 +54,9 @@
 
 <form method="get" asp-page-handler="@ConversionTypes.FahrenheitToCelsius">
     <label for="fahrenheit" class="form-label">Fahrenheit</label>
-    <textarea id="fahrenheit" name="input" class="form-control"></textarea>
+    <textarea id="fahrenheit"
+              name="input"
+              class="form-control"></textarea>
     <button type="submit" class="btn btn-primary">Convert</button>
 </form>
 
